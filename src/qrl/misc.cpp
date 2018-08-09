@@ -12,6 +12,8 @@
 #include <fstream>
 #if(_WIN32)
 #include <cctype>
+#include <wtypesbase.h>
+#include <bcrypt.h>
 #endif
 
 std::string bin2hstr(const std::vector<unsigned char> &vec, uint32_t wrap) {
@@ -140,6 +142,10 @@ std::vector<unsigned char> mnemonic2bin(const std::string &mnemonic)
 std::vector<unsigned char> getRandomSeed(uint32_t seed_size, const std::string &entropy) {
     std::vector<unsigned char> tmp(seed_size, 0);
 
+#ifdef _WIN32
+    // check me
+    BCryptGenRandom(nullptr, tmp.data(), static_cast<ULONG>(seed_size), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+#else
     std::ifstream urandom("/dev/urandom", std::ios::in | std::ios::binary);
     if (!urandom) {
         throw std::runtime_error("error accessing /dev/urandom");
@@ -150,6 +156,7 @@ std::vector<unsigned char> getRandomSeed(uint32_t seed_size, const std::string &
         throw std::runtime_error("error reading from /dev/urandom");
     }
     urandom.close();
+#endif
 
     auto tmpbytes = str2bin(entropy);
     tmp.insert(tmp.end(), tmpbytes.begin(), tmpbytes.end());

@@ -294,6 +294,10 @@ if (BUILD_PYTHON)
             shasha
             ${SWIG_LANG_LIBRARIES})
 
+        if(WIN32)
+	SWIG_LINK_LIBRARIES(pyqrllib bcrypt.lib)
+	endif()
+
     include_directories(
             ${PYTHON_INCLUDE_PATH}
             ${LIB_QRL_INCLUDES}
